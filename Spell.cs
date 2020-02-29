@@ -5,6 +5,7 @@ public class CombatInstance{
     public void Combat(CharactorInstance a, CharactorInstance b){
         foreach(CharactorInstance charactorInstance in charactorInstances){
             foreach(PassiveSpell passiveSpell in charactorInstance){
+                //characterInstance here is the reference to the passive spell owner! 
                 switch(passiveSpell.triggerType){
                     case PassiveSpellTriggerType.OnCombat:
                         break;
@@ -18,7 +19,8 @@ public class CombatInstance{
     }
 
     public void nextTurn(){
-
+        //increase turns last for passive spells
+        //
     }
 
     public void win(){
@@ -75,6 +77,7 @@ public class SpellEfftect{
 public class Spell{
     List<PassiveSpellTrigger> spellTrigger;
     List<SpellEfftect> spellEfftects;
+    int lastTurns;
     
 }
 
