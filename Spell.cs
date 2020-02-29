@@ -18,7 +18,8 @@ public class CombatInstance{
     }
 
     public void nextTurn(){
-
+        //increase turns last for passive spells
+        //
     }
 
     public void win(){
@@ -75,6 +76,7 @@ public class SpellEfftect{
 public class Spell{
     List<PassiveSpellTrigger> spellTrigger;
     List<SpellEfftect> spellEfftects;
+    int lastTurns;
     
 }
 
