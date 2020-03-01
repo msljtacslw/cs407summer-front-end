@@ -13,8 +13,13 @@ public class CombatInstance{
         }
     }
 
-    public void castSpell(CharactorInstance source, CharactorInstance target){
-
+    public void checkSpellCondition(CharactorInstance source, CharactorInstance target){
+        switch (this.condition)
+        case probability
+        case target has passiveSpell
+        case source has passiveSpell
+        case target passiveSpell lasts for n turns
+        
     }
 
     public void nextTurn(){
