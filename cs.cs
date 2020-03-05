@@ -46,63 +46,64 @@ public class Charactor
     }
 }
 
-
-
-public class GameService
-{
-
-    SpecialEffect specialEffect;
-
-    void Start()
-    {
-        specialEffect = GetComponent<SpecialEffect>();
-        background = instansiate(backgroundPrefab).GetComponent<Background>();
-    }
-    public void CharactorUnfollow(Charactor follower)
-    {
-        if (leaderName)
-        {
-            leaderName = null;
-        }
-    }
-
-    //function useful
-    public void CharactorFollow(Charactor leader, Charactor follower)
-    {
-
-    }
-
-    //public void getCharactorsInArea();// should be in the Area class
-
-    public void startCombat();
-    IEnumerator WaitForKeyDown(KeyCode keyCode)
-    {
-        while (!Input.GetKeyDown(keyCode))
-            yield return null;
-    }
-    public void showDiague()
-    {
-        startCorotine(DiagueCorotine);
-    }
-
-    public void startCombat()
-    {
-        GameObject combat = instantiate(combatPrefab);
-        Combat combatScript = combat.getCoponent<combat>();
-        combatScript.init();
-    }
-    public void showImage();
-
-    public void showBackground(); //different from showImage, need deleteBackground to delete while showImage will delete the image after a click
-
-    public void deleteBackground();
-
+public class MapService{
+    public GameObject mapInstancePrefab;
     public void loadMap(Map map, Action<Area> onPlayerEnterArea, Action<Area> onPlayerExitArea) //when execute enter area act, if the area is on another map, load map first, than change player instance position, call OnPlayerEnterArea() in Game controller
     {
         foreach (Area area in map)
         {
-            instansiate(areaInstancePrefab).GetComponent<AreaInstance>().init(area);
+            instansiate(areaInstancePrefab).GetComponent<AreaInstance>().init(area, onPlayerEnterArea, onPlayerExitArea);
+        }
+    }
+}
 
+//will the Consult, stealing... etc be used anywhere other than CharactorPanel? For example, stealing during combat. If so they should be functions in the game controller
+public class CharactorListService{
+    public AddCharactors(List<Charactor> charactors, Action<Charactor> onTalkToCharactor, Action<Charactor> onAttack, Action<Charactor> onConsult, Action<Charactor> onStealing, Action<Charactor> onInspect)
+    {
+        instansiate(CharactorPanel).GetComponent<CharactorPanel>().init();
+    }
+}
+
+public class CharactorMapInstance{
+    
+}
+
+public class AreaInstance
+{
+    IGameController gameController; //use delegate instead?
+
+    Area area;
+
+    void PlayerEnterArea(){
+        gameController.CharactorListService.AddCharactors(area.CharactorList);
+        Act actTriggered = gameController.script.GetTriggeredAct(TriggerType.EnterArea, area.name);
+        if (actTriggered)
+        { 
+            actTriggered.play(); 
+        };
+    }
+
+    void PlayerExitArea(){
+        gameController.CharactorListService.RemoveCharactors(area.CharactorList);
+    }
+    public void OnTriggerEnter(Coilder coilder)
+    {
+        if (coilder == "playerCharactor")
+        {
+            PlayerEnterArea();//single responsebility, botton shouldn't care about the its listener function's implementation.
+            //Will the enter area event handler be used some where else? if so it should be injected. Its better to separate when to do and how to do
+            //HandleEnterArea() generate charactor list in this area. Should it be directly in this class or in an injected controller?
+            //should the check be called in the controller's EnterArea()?
+            //HandlePlayerEnterArea has side effects such as search acts triggered, display charactor in the area
+
+        }
+    }
+    public void OnTriggerExit(Coilder coilder)
+    {
+        if (coilder == "playerCharactor")
+        {
+            PlayerExitArea();
         }
     }
 }
@@ -116,17 +117,22 @@ public interface IGame
 public class GameController : IGameController
 {
     Script script; // the state of the whole app
-    //GameService gameService; //because storySerive is also composed with normal game services, there is no need to have storyServices
-    Background backgroundPrefab;
-    SpecialEffect specialEffect; //visual effects in game, can be used in both gameServices and combat
-
+    
     //Put all services on the controller object. Grab any Service if needed
-    void start()
+    void Init(string scriptPath)
     {
+
+        this.script = script;
+        //all use service class for consistency. Let the service class decide whether to do instansiate&destroy or enable&disable
         specialEffect = GetComponent<SpecialEffect>();
-        background = instansiate(backgroundPrefab).GetComponent<Background>();
-        charactorListCanvas = instansiate(charactorListCanvasPrefab).GetComponent<charactorListCanvas>();
-        transactionPanel = instansiate(TransactionPanelPrefab).GetComponent<TransactionPanel>();
+        backgroundService = GetComponent<BackgroundService>();
+        charactorListService = GetComponent<CharactorListService>();
+        transactionService = GetComponent<TransactionService>();
+        mapService = GetComponent<MapService>();
+        combatService = GetComponent<CombatService>();
+        dialogueService = GetComponent<DialogueService>();
+        playerService = GetComponent<PlayerService>(); //handler player init and switch
+        saveAndLoadService = GetComponent<SaveAndLoadService>(); // this seems different because it won't be call by game objects
     }
 
     public void OnPlayerEnterArea(Area area)
@@ -210,30 +216,6 @@ public class MapInstance
 [System.Serializable]
 public class PlayerEnterAreaEvent : UnityEvent<Area>
 {
-}
-
-public class AreaInstance
-{
-    IGameController gameController; //use delegate instead?
-    public PlayerEnterAreaEvent playerEnterAreaEvent;
-    string name;
-    public void OnTriggerEnter(Coilder coilder)
-    {
-        if (coilder == "playerCharactor")
-        {
-            playerEnterAreaEvent.Invoke(area);//single responsebility, botton shouldn't care about the its listener function's implementation
-            //HandleEnterArea() generate charactor list in this area. Should it be directly in this class or in an injected controller?
-            //should the check be called in the controller's EnterArea()?
-            //HandlePlayerEnterArea has side effects such as search acts triggered, display charactor in the area
-        }
-    }
-    public void OnTriggerExit(Coilder coilder)
-    {
-        if (coilder == "playerCharactor")
-        {
-            playerLeaveAreaEvent.Invoke(area);
-        }
-    }
 }
 
 public class SelectingRect
