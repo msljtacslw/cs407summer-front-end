@@ -121,7 +121,6 @@ public class GameController : IGameController
     //Put all services on the controller object. Grab any Service if needed
     void Init(string scriptPath)
     {
-
         this.script = script;
         //all use service class for consistency. Let the service class decide whether to do instansiate&destroy or enable&disable
         specialEffect = GetComponent<SpecialEffect>();
@@ -132,79 +131,28 @@ public class GameController : IGameController
         combatService = GetComponent<CombatService>();
         dialogueService = GetComponent<DialogueService>();
         playerService = GetComponent<PlayerService>(); //handler player init and switch
-        saveAndLoadService = GetComponent<SaveAndLoadService>(); // this seems different because it won't be call by game objects
-    }
-
-    public void OnPlayerEnterArea(Area area)
-    {
-        //player.enterArea(); //call player charactorInstance's method. Seems unecessary because game only needs npcs' location
-        //display all charactors in the area on scrollview
-        charactorList.AddCharactors(area.GetCharactors());
-
-        //instansiate(charactorListCanvasPrefab).GetComponent<CharactorListCanvas>().init(area.GetCharactorsInArea()); //isn't instansiating prefab already some kind of denpendency injection?
-
-
-        //search and play any act triggered
-        Act actTriggered = script.GetTriggeredAct(TriggerType.EnterArea, area.name);
-        if (actTriggered) { actTriggered.play(); };
-    }
-
-    public void OnPlayerLeaveArea()
-    {
-        //leave area should remove all charactor in the area. But don't destory or disable it to prevent the bug caused by overlay area coliders.
-
-    }
-
-    public void OnPlayerInspectInventory()
-    {
-
-    }
-
-    public void OnPlayerInspectCharactor(Charactor charactor)
-    {
-
-    }
-
-    public void OnPlayerTalkTo(Charactor charactor)
-    {
-        //search and play any act triggered
-        Act actTriggered = script.GetTriggeredAct(TriggerType.TalkTo, charactor.name);
-        if (actTriggered) 
-        { 
-            actTriggered.play(); 
-        } else {
-            gameService.showDiague();
-        }
-    }
-
-    public void OnPlayerMakeTransactionWith(Charactor charactor){
-        transactionPanel.CreateTransaction(charactor);
-    }
-
-    public void OnGameStart()
-    {
-
-    }
-
-    public void OnPlayerTransaction()
-    {
-        GameObject transactionPanel = instantiate(transactionPanelPrefab);
-        transactionPanel.init(player, dealer);
-
     }
 
     //?? not pure !!!
     //dialogue will dismiss default dialogue but enterArea will not dismiss entering area. Where to handle this logic?
-    //
-    public void SearchTriggeredActAndPlay(TriggerType triggerType, string interactionObjectName) //it may not only be the interaction with object, it can also be time, for example one day later.
+    //maybe in the charactor and area instance for single responsibility
+
+    public Act SearchTriggeredAct(TriggerType triggerType, string payload)
     {
-        foreach (Act act in Script.ActiveActs)
+        foreach (Act act in Script.ActiveActs) //get acts a field called active, after playing, set active to false and nextAct's active to true
         {
             if (act.trigger.Hit(triggerType, interactionObjectName))
             {
-                act.play(gameSevice);
+                return act;
             }
         }
+    }
+
+    public void load(){
+
+    }
+    public void Save(){
+
     }
 }
 
