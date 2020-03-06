@@ -152,6 +152,8 @@ public class AddPassiveSpellToSource : SpellEfftect{
         //OR pure functions
         PassiveSpell ps = combatInstance.SpellDictionary.get(passiveSpellName);
         source.AddPassiveSpell(ps);
+        //its not convienent to bind visual effects to a passive spell, so only add visual effect when the passive is suppose to last forever
+        //All passive should be acquired through active spell. Therefore no need to worry about init passive spells
     }
 }
 

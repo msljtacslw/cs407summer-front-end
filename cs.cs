@@ -75,6 +75,7 @@ public class AreaInstance
 
     Area area;
 
+    //this is the area's responsibilty, so shouldn't be in the gameController
     void PlayerEnterArea(){
         gameController.CharactorListService.AddCharactors(area.CharactorList);
         Act actTriggered = gameController.GetTriggeredAct(TriggerType.EnterArea, area.name);
