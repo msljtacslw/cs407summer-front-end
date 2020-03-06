@@ -77,7 +77,7 @@ public class AreaInstance
 
     void PlayerEnterArea(){
         gameController.CharactorListService.AddCharactors(area.CharactorList);
-        Act actTriggered = gameController.script.GetTriggeredAct(TriggerType.EnterArea, area.name);
+        Act actTriggered = gameController.GetTriggeredAct(TriggerType.EnterArea, area.name);
         if (actTriggered)
         { 
             actTriggered.play(); 
@@ -130,7 +130,7 @@ public class GameController : IGameController
         mapService = GetComponent<MapService>();
         combatService = GetComponent<CombatService>();
         dialogueService = GetComponent<DialogueService>();
-        playerService = GetComponent<PlayerService>(); //handler player init and switch
+        playerService = GetComponent<PlayerService>(); //handler player init and switch, if move player to areas in another map, load map first.
     }
 
     //?? not pure !!!

@@ -64,6 +64,7 @@ public class GameService
 }
 
 
+
 public class GameController{
     
     public void OnPlayerEnterArea(Area area)
