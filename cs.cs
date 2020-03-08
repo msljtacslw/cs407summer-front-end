@@ -142,7 +142,7 @@ public class GameController : IGameController
     {
         foreach (Act act in Script.ActiveActs) //get acts a field called active, after playing, set active to false and nextAct's active to true
         {
-            if (act.trigger.Hit(triggerType, interactionObjectName))
+            if (act.trigger.Hit(triggerType, interactionObjectName))//put hit method in act for consistency with passiveSpell and fit the dimtry rule
             {
                 return act;
             }
